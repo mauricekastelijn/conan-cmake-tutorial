@@ -11,7 +11,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            conan-target: default
+          - os: ubuntu-latest
+            conan-target: release
     steps:
       - uses: actions/checkout@v4
 
@@ -27,7 +31,7 @@ jobs:
         id: cache-conan
         uses: actions/cache@v4
         with:
-          path: C:\Users\runneradmin\.conan2
+          path: ${{ runner.os == 'windows-latest' && 'C:\\Users\\runneradmin\\.conan2' || '/home/runner/.conan2' }}
           key: conan-${{ runner.os }}-${{ hashFiles('**/conanfile.txt') }}
           
       - name: Create default profile (if cache miss)
@@ -38,7 +42,7 @@ jobs:
         run: conan install . --output-folder build --build=missing
 
       - name: Configure CMake
-        run: cmake --preset conan-default
+        run: cmake --preset conan-${{ matrix.conan-target }}
 
       - name: Build
         run: cmake --build build --config Release
