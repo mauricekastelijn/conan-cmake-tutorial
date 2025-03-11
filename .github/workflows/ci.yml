@@ -35,7 +35,7 @@ jobs:
         run: conan install . --output-folder build --build=missing
 
       - name: Configure CMake
-        run: cmake --preset conan-release
+        run: cmake --preset conan-default
 
       - name: Build
         run: cmake --build build --config Release
