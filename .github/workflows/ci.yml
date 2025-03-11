@@ -1,0 +1,45 @@
+name: C++ CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install Conan
+        run: pip install conan==2.*
+
+      - name: Cache Conan dependencies
+        id: cache-conan
+        uses: actions/cache@v2
+        with:
+          path: C:\Users\runneradmin\.conan2
+          key: conan-${{ runner.os }}-${{ hashFiles('**/conanfile.txt') }}
+          
+      - name: Create default profile (if cache miss)
+        if: steps.cache-conan.outputs.cache-hit != 'true'
+        run: conan profile detect --force
+
+      - name: Install deps (Conan)
+        run: conan install . --output-folder build --build=missing
+
+      - name: Configure CMake
+        run: cmake --preset conan-release
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Run unit tests
+        run: ctest --output-on-failure -C Release
+        working-directory: build
