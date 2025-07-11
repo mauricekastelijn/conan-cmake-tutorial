@@ -539,7 +539,7 @@ using another within the same project).
          spdlog::info("Computed 3D dot product: {}", result);
          // maybe reuse 2D dot to format part of the message (demonstration)
          std::string xyPart = dot2d(x1, y1, x2, y2);
-         return fmt::format("{} + ({}*{} = {})", 
+         return fmt::format("{} + ({}*{} = {}) = {}", 
                              xyPart, z1, z2, z1*z2, result);
      }
      ```
